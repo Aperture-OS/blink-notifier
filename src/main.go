@@ -17,12 +17,12 @@ import (
 )
 
 var (
-	RepoDir    = "./repo"
-	WebhookURL string
-	GitHubToken string
-	GitLabToken string
+	RepoDir       = "./repo"
+	WebhookURL    string
+	GitHubToken   string
+	GitLabToken   string
 	CodebergToken string
-	repoURL    = "https://github.com/Aperture-OS/testing-blink-repo.git"
+	repoURL       = "https://github.com/Aperture-OS/testing-blink-repo.git"
 )
 
 type Package struct {
@@ -42,7 +42,10 @@ type Update struct {
 	Warning  bool
 }
 
-// ---------------------- CLEAN ----------------------
+/****************************************************/
+// clean removes the repository folder if it exists
+// used to reset the local repository state
+/****************************************************/
 func clean() {
 	log.Println("[DEBUG] Cleaning up repository folder...")
 	if err := os.RemoveAll(RepoDir); err != nil {
@@ -52,7 +55,10 @@ func clean() {
 	}
 }
 
-// ---------------------- GET REPO ----------------------
+/****************************************************/
+// getRepo checks if the repository exists and is valid
+// clones the repository if it does not exist or if it is corrupted
+/****************************************************/
 func getRepo() {
 	log.Println("[DEBUG] Checking repository folder...")
 	if _, err := os.Stat(RepoDir); err == nil {
@@ -74,7 +80,10 @@ func getRepo() {
 	log.Println("[DEBUG] Repository cloned successfully!")
 }
 
-// ---------------------- DISCORD ----------------------
+/****************************************************/
+// sendDiscord sends a message to a Discord webhook
+// splits messages into chunks under 1900 characters to prevent truncation
+/****************************************************/
 func sendDiscord(content string) {
 	const maxLen = 1900
 	log.Printf("[DEBUG] Sending message to Discord, length=%d", len(content))
@@ -112,7 +121,10 @@ func sendDiscord(content string) {
 	}
 }
 
-// ---------------------- FETCH LATEST TAG ----------------------
+/****************************************************/
+// fetchLatestTag retrieves the latest semver tag from a repository API
+// supports GitHub, GitLab, and Codeberg with optional authentication tokens
+/****************************************************/
 func fetchLatestTag(apiURL string, token string, provider string) (string, error) {
 	req, _ := http.NewRequest("GET", apiURL, nil)
 	if provider == "github" && token != "" {
@@ -135,7 +147,9 @@ func fetchLatestTag(apiURL string, token string, provider string) (string, error
 		return "", fmt.Errorf("API returned status %d", resp.StatusCode)
 	}
 
-	var tags []struct{ Name string `json:"name"` }
+	var tags []struct {
+		Name string `json:"name"`
+	}
 	if err := json.NewDecoder(resp.Body).Decode(&tags); err != nil {
 		return "", err
 	}
@@ -161,7 +175,10 @@ func fetchLatestTag(apiURL string, token string, provider string) (string, error
 	return versions[0].String(), nil
 }
 
-// ---------------------- PROVIDER HELPERS ----------------------
+/****************************************************/
+// getGitHubLatestTag extracts repository info from a GitHub URL
+// calls fetchLatestTag for GitHub API
+/****************************************************/
 func getGitHubLatestTag(url string) (string, error) {
 	re := regexp.MustCompile(`github.com/([^/]+)/([^/]+)/`)
 	matches := re.FindStringSubmatch(url)
@@ -173,6 +190,10 @@ func getGitHubLatestTag(url string) (string, error) {
 	return fetchLatestTag(apiURL, GitHubToken, "github")
 }
 
+/****************************************************/
+// getGitLabLatestTag extracts project info from a GitLab URL
+// calls fetchLatestTag for GitLab API
+/****************************************************/
 func getGitLabLatestTag(url string) (string, error) {
 	re := regexp.MustCompile(`gitlab.com/([^/]+/[^/]+)/`)
 	matches := re.FindStringSubmatch(url)
@@ -184,6 +205,10 @@ func getGitLabLatestTag(url string) (string, error) {
 	return fetchLatestTag(apiURL, GitLabToken, "gitlab")
 }
 
+/****************************************************/
+// getCodebergLatestTag extracts repository info from a Codeberg URL
+// calls fetchLatestTag for Codeberg API
+/****************************************************/
 func getCodebergLatestTag(url string) (string, error) {
 	re := regexp.MustCompile(`codeberg.org/([^/]+)/([^/]+)/`)
 	matches := re.FindStringSubmatch(url)
@@ -195,6 +220,9 @@ func getCodebergLatestTag(url string) (string, error) {
 	return fetchLatestTag(apiURL, CodebergToken, "codeberg")
 }
 
+/****************************************************/
+// getVersionFromURL extracts a version string from a URL using regex
+/****************************************************/
 func getVersionFromURL(url string) string {
 	re := regexp.MustCompile(`(\d+\.\d+\.\d+)`)
 	v := re.FindString(url)
@@ -202,7 +230,9 @@ func getVersionFromURL(url string) string {
 	return v
 }
 
-// ---------------------- JSON PARSING ----------------------
+/****************************************************/
+// parseJSONFile reads a JSON file and unmarshals it into a Package struct
+/****************************************************/
 func parseJSONFile(path string) (*Package, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -216,7 +246,7 @@ func parseJSONFile(path string) (*Package, error) {
 	return &pkg, nil
 }
 
-// ---------------------- MAIN ----------------------
+// main function is the core function, self explanatory
 func main() {
 	// Load environment
 	_ = godotenv.Load()
