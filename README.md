@@ -17,4 +17,4 @@ go build main.go
 ./main # this runs a version check, make a service to run this whenever u want to do recurrent checks.
 ```
 
-© Copyright Aperture OS 2025 Must Include the Copyright notice in any fork!
+© Copyright Aperture OS 2025-2026 Must Include the Copyright notice in any fork!
