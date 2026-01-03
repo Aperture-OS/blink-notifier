@@ -210,7 +210,7 @@ func getGitLabLatestTag(url string) (string, error) {
 // calls fetchLatestTag for Codeberg API
 /****************************************************/
 func getCodebergLatestTag(url string) (string, error) {
-	re := regexp.MustCompile(`codeberg.org/([^/]+)/([^/]+)/`)
+	re := regexp.MustCompile(`codeberg\.org/([^/]+)/([^/]+)/`)
 	matches := re.FindStringSubmatch(url)
 	if len(matches) < 3 {
 		return "", fmt.Errorf("invalid Codeberg URL: %s", url)
