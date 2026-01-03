@@ -180,7 +180,7 @@ func fetchLatestTag(apiURL string, token string, provider string) (string, error
 // calls fetchLatestTag for GitHub API
 /****************************************************/
 func getGitHubLatestTag(url string) (string, error) {
-	re := regexp.MustCompile(`github.com/([^/]+)/([^/]+)/`)
+	re := regexp.MustCompile(`github\.com/([^/]+)/([^/]+)/`)
 	matches := re.FindStringSubmatch(url)
 	if len(matches) < 3 {
 		return "", fmt.Errorf("invalid GitHub URL: %s", url)
