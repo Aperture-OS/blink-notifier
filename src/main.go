@@ -195,7 +195,7 @@ func getGitHubLatestTag(url string) (string, error) {
 // calls fetchLatestTag for GitLab API
 /****************************************************/
 func getGitLabLatestTag(url string) (string, error) {
-	re := regexp.MustCompile(`gitlab.com/([^/]+/[^/]+)/`)
+	re := regexp.MustCompile(`gitlab\.com/([^/]+/[^/]+)/`)
 	matches := re.FindStringSubmatch(url)
 	if len(matches) < 2 {
 		return "", fmt.Errorf("invalid GitLab URL: %s", url)
